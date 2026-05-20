@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Barber Assessment Report — Felipe & Sons</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#f0ece4;font-family:'DM Sans','Helvetica Neue',sans-serif;min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#111}::-webkit-scrollbar-thumb{background:#333}
+input,button,select{font-family:'DM Sans','Helvetica Neue',sans-serif}
+.tab-btn{padding:10px 22px;font-size:11px;letter-spacing:1.5px;background:transparent;color:#555;border:1px solid #1e1e1e;cursor:pointer;text-transform:uppercase;transition:all 0.2s;border-radius:2px 2px 0 0}
+.tab-btn.active{background:#111;color:#c8a96e;border-color:#333;border-bottom-color:#111}
+.tab-content{display:none}.tab-content.active{display:block}
+.rubric-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+.rubric-table th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;background:#0d0d0d;border-bottom:1px solid #1a1a1a}
+.rubric-table td{padding:8px 12px;border-bottom:1px solid #111;vertical-align:top;line-height:1.6;color:#9ca3af}
+.rubric-table td:first-child{font-family:monospace;font-size:16px;font-weight:700;text-align:center;min-width:44px}
+.rubric-table tr:hover td{background:#0e0e0e}
+.lang-toggle{display:flex;gap:0;border:1px solid #333;border-radius:2px;overflow:hidden}
+.lang-btn{padding:6px 16px;font-size:11px;letter-spacing:1px;background:transparent;color:#555;border:none;cursor:pointer;transition:all 0.15s}
+.lang-btn.active{background:#c8a96e;color:#0a0a0a;font-weight:700}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState}=React;
+
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────────
+const T={
+  en:{
+    brand:"Felipe & Sons — Operations",title:"Barber Assessment Report",subtitle:"All Branches · Active Evaluations",
+    total:"Total",avgScore:"Avg Score",gear2p:"Gear 2+",gear3:"Gear 3",standout:"Standout",onWatch:"On Watch",
+    tabReport:"Assessment Report",tabRubric:"Scoring Rubric",
+    search:"Search barber...",sortLabel:"SORT",sortScore:"Score",sortName:"Name",sortImp:"% Change",
+    barsNote:"T=Technical · C=Consultation · S=Satisfaction | Click to expand",
+    showing:"Showing",of:"of",barbers:"barbers",
+    technical:"Technical",consultation:"Consultation",satisfaction:"Satisfaction",
+    strengths:"Strengths",improvements:"Areas for Improvement",a1:"Assessment 1",a2:"Assessment 2",
+    gearFooter:"Gear 1: 0–44 · Gear 2: 45–55 · Gear 3: 56–75",pts:"pts",
+    rubricTitle:"Scoring Rubric & Reference Guide",
+    rubricSub:"All skills scored 1–5. Each category: 5 factors × 5 pts = 25 pts. Total possible: 75 pts.",
+    genScale:"General Scoring Scale",score:"Score",label:"Level",meaning:"Meaning",whatLooks:"What it looks like",
+    techTitle:"✂️ Technical Skills — Max 25 pts",techSub:"Evaluates technical execution and tool control",
+    consTitle:"💬 Consultation — Max 25 pts",consSub:"Evaluates hair analysis and service planning",
+    satTitle:"🤝 Client Satisfaction — Max 25 pts",satSub:"Evaluates overall client experience",
+    gearClassTitle:"⚙️ Gear Classification",
+    gearRange:"Score Range",gearName:"Gear",gearMeaning:"Meaning",
+    gear1path:"⚙️ Gear 1 — Development Path",
+    gear1body:"A Gear 1 classification is not a final standing — it is the beginning of a structured improvement process. Every Gear 1 barber will be given two formal opportunities to advance, each consisting of one dedicated training session followed by one formal evaluation.\n\nOpportunity 1: Targeted training session addressing identified weaknesses → formal re-evaluation\nOpportunity 2: Second training session with focused correction → final formal evaluation\n\nConsistent failure to demonstrate measurable progress through both opportunities will result in a formal review of the barber's position within the company.",
+    gear2path:"⚙️ Gear 2 — Benefits & Recognition",
+    gear2body:"Gear 2 barbers have demonstrated the ability to operate independently and consistently. Benefits include:\n\n1. Product Sales Commission — Earn commission on every product recommended and sold during a service.\n\n2. Video Content Incentive — Eligible to participate in the Felipe & Sons content program. Barbers who produce approved content for the brand's social media channels receive direct monetary compensation per video published.\n\n3. Priority for Future Benefits — First consideration as additional incentive programs, responsibilities, and opportunities are developed.",
+    gear3path:"⚙️ Gear 3 — The Standard We Are Building Toward",
+    gear3body:"Gear 3 is not a reward. It is the standard.\n\nFelipe & Sons is not building a good barbershop. We are building the best barbershop in the Philippines. That requires barbers who operate at the highest level — technically, professionally, and in the experience they deliver to every client, every day.\n\nEvery barber in this company is expected to work toward Gear 3. Not eventually. Now.",
+    howTitle:"📋 How to Use This System",
+    howBody:"1. Open the Barber Evaluation Form and create a new entry\n2. Fill in barber name, shop, reviewer, and evaluation purpose\n3. Score each of the 15 factors from 1–5 using the scales above\n4. Total Score and Gear update instantly\n5. Fill in Strengths, Areas for Improvement, and Training Plan\n6. Set Last Review and Next Review dates",
+    useCasesTitle:"🎯 Use Cases",
+    useCases:"Training Progress · Practical Session Evaluation · Trade Test Preparation · Hiring · Performance Review · Quality Control",
+    factors:["Sectioning","Scissor Control & Body Mechanics","Clipper Work","Finishing","Styling","Hair Analysis","Haircut Planning & Explanation","Consultation Communication","Client Alignment","Aftercare Instruction","Greeting & Client Comfort","Handling & Customer Care","Final Result Satisfaction","Hygiene & Station Organization","F&S Standards"],
+  },
+  tl:{
+    brand:"Felipe & Sons — Mga Operasyon",title:"Ulat ng Pagtatasa ng Barbero",subtitle:"Lahat ng Sangay · Aktibong Ebalwasyon",
+    total:"Kabuuan",avgScore:"Avg na Marka",gear2p:"Gear 2+",gear3:"Gear 3",standout:"Nangunguna",onWatch:"Sa Bantay",
+    tabReport:"Ulat ng Pagtatasa",tabRubric:"Gabay sa Pagmamarka",
+    search:"Hanapin ang barbero...",sortLabel:"AYOS",sortScore:"Marka",sortName:"Pangalan",sortImp:"% Pagbabago",
+    barsNote:"T=Teknikal · K=Konsultasyon · S=Kasiyahan | I-click para palawakin",
+    showing:"Ipinapakita",of:"sa",barbers:"mga barbero",
+    technical:"Teknikal",consultation:"Konsultasyon",satisfaction:"Kasiyahan",
+    strengths:"Mga Kalakasan",improvements:"Mga Lugar para Pagbutihin",a1:"Unang Pagtatasa",a2:"Ikalawang Pagtatasa",
+    gearFooter:"Gear 1: 0–44 · Gear 2: 45–55 · Gear 3: 56–75",pts:"pts",
+    rubricTitle:"Gabay sa Pagmamarka at Sanggunian",
+    rubricSub:"Lahat ng kasanayan ay sinusukat 1–5. Bawat kategorya: 5 salik × 5 pts = 25 pts. Kabuuang posible: 75 pts.",
+    genScale:"Pangkalahatang Sukat ng Pagmamarka",score:"Marka",label:"Antas",meaning:"Kahulugan",whatLooks:"Ano ang hitsura nito",
+    techTitle:"✂️ Mga Teknikal na Kasanayan — Max 25 pts",techSub:"Sinusuri ang teknikal na pagpapatupad at kontrol ng kagamitan",
+    consTitle:"💬 Konsultasyon — Max 25 pts",consSub:"Sinusuri ang pagsusuri ng buhok at pagpaplano ng serbisyo",
+    satTitle:"🤝 Kasiyahan ng Kliyente — Max 25 pts",satSub:"Sinusuri ang kabuuang karanasan ng kliyente",
+    gearClassTitle:"⚙️ Klasipikasyon ng Gear",
+    gearRange:"Saklaw ng Marka",gearName:"Gear",gearMeaning:"Kahulugan",
+    gear1path:"⚙️ Gear 1 — Landas ng Pag-unlad",
+    gear1body:"Ang klasipikasyong Gear 1 ay hindi isang pangwakas na katayuan — ito ang simula ng isang nakabalangkas na proseso ng pagpapabuti. Ang bawat barbero sa Gear 1 ay bibigyan ng dalawang pormal na pagkakataon upang sumulong, na bawat isa ay binubuo ng isang nakatuong sesyon sa pagsasanay na sinusundan ng isang pormal na ebalwasyon.\n\nPagkakataon 1: Nakatuong sesyon sa pagsasanay na tumutugon sa mga natukoy na kahinaan → pormal na muling ebalwasyon\nPagkakataon 2: Ikalawang sesyon sa pagsasanay na may nakatuong pagwawasto → huling pormal na ebalwasyon\n\nAng tuloy-tuloy na kabiguan na magpakita ng nasusukat na pag-unlad sa parehong pagkakataon ay magreresulta sa pormal na pagsusuri ng posisyon ng barbero sa kumpanya.",
+    gear2path:"⚙️ Gear 2 — Mga Benepisyo at Pagkilala",
+    gear2body:"Ang mga barbero sa Gear 2 ay nagpakita ng kakayahang mag-operate nang nagsasarili at pare-pareho. Kasama sa mga benepisyo:\n\n1. Komisyon sa Pagbebenta ng Produkto — Kumita ng komisyon sa bawat produktong inirerekomenda at naibenta sa panahon ng serbisyo.\n\n2. Insentibo sa Video Content — Karapat-dapat na lumahok sa content program ng Felipe & Sons. Ang mga barbero na gumagawa ng aprubadong content para sa mga social media channel ng brand ay tumatanggap ng direktang bayad sa bawat video na nailathala.\n\n3. Priyoridad para sa Mga Susunod na Benepisyo — Unang isinasaalang-alang habang nagde-develop ng mga karagdagang programa ng insentibo.",
+    gear3path:"⚙️ Gear 3 — Ang Pamantayang Ating Binubuo",
+    gear3body:"Ang Gear 3 ay hindi isang gantimpala. Ito ang pamantayan.\n\nAng Felipe & Sons ay hindi nagtatayo ng isang magandang barbershop. Nagtatayo tayo ng pinakamahusay na barbershop sa Pilipinas. Nangangailangan ito ng mga barbero na nag-ooperate sa pinakamataas na antas — teknikal, propesyonal, at sa karanasang ibinibigay nila sa bawat kliyente, araw-araw.\n\nInaasahan na ang bawat barbero sa kumpanyang ito ay magsumikap patungo sa Gear 3. Hindi sa huli. Ngayon.",
+    howTitle:"📋 Paano Gamitin ang Sistemang Ito",
+    howBody:"1. Buksan ang Barber Evaluation Form at gumawa ng bagong entry\n2. Punan ang pangalan ng barbero, tindahan, tagasuri, at layunin ng ebalwasyon\n3. Markahan ang bawat isa sa 15 salik mula 1–5 gamit ang mga sukat sa itaas\n4. Awtomatikong ina-update ang Kabuuang Marka at Gear\n5. Punan ang Mga Kalakasan, Mga Lugar para Pagbutihin, at Plano sa Pagsasanay\n6. Itakda ang Huling Pagsusuri at Susunod na Pagsusuri na mga petsa",
+    useCasesTitle:"🎯 Mga Gamit",
+    useCases:"Progreso sa Pagsasanay · Ebalwasyon sa Praktikal na Sesyon · Paghahanda sa Trade Test · Pag-hire · Performance Review · Quality Control",
+    factors:["Seksyon","Kontrol ng Gunting at Mekanika ng Katawan","Paggamit ng Clipper","Pagtatapos","Istilo","Pagsusuri ng Buhok","Pagpaplano at Paliwanag ng Gupit","Komunikasyon sa Konsultasyon","Pagkakatugma sa Kliyente","Tagubilin sa Pag-aalaga","Pagbati at Kaginhawaan ng Kliyente","Pag-aasikaso at Pangangalaga","Kasiyahan sa Huling Resulta","Kalinisan at Organisasyon ng Estasyon","Pamantayan ng F&S"],
+  }
+};
+
+// ── RUBRIC ROWS per factor (score 1–5 descriptions) ───────────────────────────
+const RUBRIC = {
+  en:[
+    // Technical (0-4)
+    [[1,"Poor","No sectioning done, cuts without identifying growth direction"],[2,"Weak","Inconsistent sections, growth pattern ignored"],[3,"Acceptable","Basic sectioning present, growth pattern partially considered"],[4,"Strong","Clean sections that respect natural growth, identifies disconnections"],[5,"Excellent","Precise sectioning fully aligned with growth pattern, creates a clear cutting map"]],
+    [[1,"Poor","Unsteady hand, no tension control, poor posture, unsafe movement"],[2,"Weak","Some control but inconsistent tension and angle accuracy"],[3,"Acceptable","Generally clean cuts, correct posture, minor inefficiencies"],[4,"Strong","Steady and confident scissor work, clean lines, good posture throughout"],[5,"Excellent","Precise and fluid execution, perfect tension control, textbook body mechanics"]],
+    [[1,"Poor","Harsh lines visible, incorrect guards, no visible transition"],[2,"Weak","Some blending attempted but transitions are rough or uneven"],[3,"Acceptable","Acceptable fade with minor harsh lines, guard selection mostly correct"],[4,"Strong","Smooth transitions, correct guard progression, no visible harsh lines"],[5,"Excellent","Seamless fade, excellent transitions, guard control precise and consistent"]],
+    [[1,"Poor","Neckline unclean, edges uneven, no finishing work done"],[2,"Weak","Detailing attempted but asymmetrical or rough in key areas"],[3,"Acceptable","Neckline and edges are clean, minor symmetry issues"],[4,"Strong","Sharp and symmetrical details, clean neckline, precise edge work"],[5,"Excellent","Immaculate finishing, perfect symmetry, every detail elevated to professional standard"]],
+    [[1,"Poor","Incorrect heat or wrong product, finish does not enhance the haircut"],[2,"Weak","Basic technique but inconsistent heat, product applied without consideration"],[3,"Acceptable","Appropriate product, adequate direction, some technique inconsistencies"],[4,"Strong","Correct heat setting, clear directional control, product matches hair type"],[5,"Excellent","Expert technique, hair shaped intentionally, perfect product choice"]],
+    // Consultation (5-9)
+    [[1,"Poor","No analysis performed, begins cutting without observing the hair"],[2,"Weak","Minimal observation, misses key characteristics like density or growth direction"],[3,"Acceptable","Identifies basic hair type and density, limited reading of growth patterns"],[4,"Strong","Correctly reads density, growth pattern, head shape — uses this to inform the plan"],[5,"Excellent","Thorough and accurate analysis, confidently identifies all key factors before touching the hair"]],
+    [[1,"Poor","No plan communicated, barber jumps straight into cutting without structure"],[2,"Weak","Vague plan, technique choices are unclear or not aligned with client's hair"],[3,"Acceptable","Basic plan communicated, appropriate but not fully explained"],[4,"Strong","Clear structured plan, technique choices match the hair, implements D.F.S in a basic way"],[5,"Excellent","Confident and detailed plan, client fully understands, fully implements D.F.S"]],
+    [[1,"Poor","No questions asked, barber assumes what the client wants"],[2,"Weak","One or two basic questions, no confirmation of understanding"],[3,"Acceptable","Asks relevant questions, confirms general direction but misses some details"],[4,"Strong","Clear and structured questions, confirms expectations, client feels heard, advises products"],[5,"Excellent","Full consultation, active listening, confirms all details, considers image not just the hair"]],
+    [[1,"Poor","Cuts hair without confirmation, ignores client feedback"],[2,"Weak","Asks if ready but does not check if client actually understands the plan"],[3,"Acceptable","Gets a basic nod before starting, does not double-check specific details"],[4,"Strong","Clearly explains plan using visual reference, ensures client agrees before first cut"],[5,"Excellent","Perfect alignment, recaps plan clearly, handles hesitation, starts only when client is 100% confident"]],
+    [[1,"Poor","No advice given, lets client leave without explaining maintenance"],[2,"Weak","Mentions a product name in passing, no clear instructions on use"],[3,"Acceptable","Suggests correct product type, gives a basic tip on how to style at home"],[4,"Strong","Explains exactly how to style, recommends specific product, states when to book next visit"],[5,"Excellent","Complete grooming routine, demonstrates product application, precise styling steps, maintenance schedule"]],
+    // Satisfaction (10-14)
+    [[1,"Poor","No greeting, cold or dismissive attitude, client feels ignored"],[2,"Weak","Basic greeting but no warmth, limited communication, client feels unsure"],[3,"Acceptable","Polite greeting, professional attitude, client feels welcomed but interaction is minimal"],[4,"Strong","Warm and confident greeting, good eye contact, client feels at ease immediately"],[5,"Excellent","Exceptional first impression, fully attentive, client feels valued and respected from the start"]],
+    [[1,"Poor","Rough handling, client visibly uncomfortable, no awareness of client's body position"],[2,"Weak","Inconsistent handling, some discomfort moments, limited awareness"],[3,"Acceptable","Generally gentle, client comfortable most of the time, minor adjustments needed"],[4,"Strong","Smooth and intentional movements, client comfortable throughout, good spatial awareness"],[5,"Excellent","Effortless handling, client completely at ease, movements fluid and professional at all times"]],
+    [[1,"Poor","Result does not match what was discussed, client visibly dissatisfied"],[2,"Weak","Result partially matches, barber does not check in before finishing"],[3,"Acceptable","Result meets basic expectations, confirms satisfaction but no aftercare advice"],[4,"Strong","Result matches consultation, barber explains styling and confirms client is happy"],[5,"Excellent","Result exceeds expectations, barber walks client through finish, provides full aftercare guidance"]],
+    [[1,"Poor","Dirty station, uses unsanitized tools, hair buildup on floor and chair"],[2,"Weak","Station is cluttered, tools disorganized, sanitation only done when prompted"],[3,"Acceptable","Station generally tidy, basic sanitation followed, small hairs or clutter remain"],[4,"Strong","Clean and organized, sanitizes tools regularly in front of client, workspace clear"],[5,"Excellent","Flawless station habits, continuous cleaning, strict medical-grade tool sanitation throughout"]],
+    [[1,"Poor","Disorganized, excessive time wasted, no clear workflow"],[2,"Weak","Some structure but frequent pauses, inefficient tool use"],[3,"Acceptable","Reasonable pace, workflow present but some inefficiencies"],[4,"Strong","Efficient and organized, tools used purposefully, minimal downtime"],[5,"Excellent","Fluid and confident workflow, no wasted motion, service completed with quality and efficiency"]],
+  ],
+  tl:[
+    [[1,"Mahirap","Walang seksyon, gumugupit nang hindi tinutukoy ang direksyon ng paglaki"],[2,"Mahina","Hindi pare-parehong mga seksyon, binabalewala ang pattern ng paglaki"],[3,"Katanggap-tanggap","Pangunahing seksyon, bahagyang isinasaalang-alang ang pattern ng paglaki"],[4,"Malakas","Malinis na mga seksyon na iginagalang ang natural na paglaki, natutukoy ang mga disconnection"],[5,"Napakahusay","Tumpak na seksyon na ganap na nakahanay sa pattern ng paglaki, gumagawa ng malinaw na mapa ng gupit"]],
+    [[1,"Mahirap","Hindi matatag na kamay, walang kontrol sa tensyon, mahinang postura, hindi ligtas na galaw"],[2,"Mahina","May ilang kontrol ngunit hindi pare-parehong tensyon at katumpakan ng anggulo"],[3,"Katanggap-tanggap","Pangkalahatang malinis na gupit, tamang postura, menor na hindi kahusayan"],[4,"Malakas","Matatag at kumpiyansang paggamit ng gunting, malinis na linya, magandang postura"],[5,"Napakahusay","Tumpak at maayos na pagpapatupad, perpektong kontrol sa tensyon, perpektong mekanika ng katawan"]],
+    [[1,"Mahirap","Kitang-kita ang malupit na linya, maling guard, walang makitang paglipat"],[2,"Mahina","May ilang paghahalo ngunit magaspang o hindi pantay ang paglipat"],[3,"Katanggap-tanggap","Katanggap-tanggap na fade, menor na malupit na linya, kadalasang tamang guard"],[4,"Malakas","Maayos na paglipat, tamang progresyon ng guard, walang malupit na linya"],[5,"Napakahusay","Walang putol na fade, mahusay na paglipat, tumpak at pare-parehong kontrol ng guard"]],
+    [[1,"Mahirap","Hindi malinis ang neckline, hindi pantay ang gilid, walang ginawang pagtatapos"],[2,"Mahina","Sinubukan ang detalye ngunit hindi simetrikal o magaspang sa mahahalagang lugar"],[3,"Katanggap-tanggap","Malinis ang neckline at gilid, menor na isyu sa simetriya"],[4,"Malakas","Matulis at simetrikal na detalye, malinis na neckline, tumpak na edge work"],[5,"Napakahusay","Walang kapintasan na pagtatapos, perpektong simetriya, bawat detalye ay propesyonal"]],
+    [[1,"Mahirap","Maling init o maling produkto, hindi nagpapahusay ang tapusin sa gupit"],[2,"Mahina","Pangunahing teknik ngunit hindi pare-parehong init, produkto nang walang pagsasaalang-alang"],[3,"Katanggap-tanggap","Angkop na produkto, sapat na direksyon, ilang hindi pagkakatulad ng teknik"],[4,"Malakas","Tamang setting ng init, malinaw na kontrol ng direksyon, produkto para sa uri ng buhok"],[5,"Napakahusay","Dalubhasang teknik, sadyang hinubog ang buhok, perpektong pagpili ng produkto"]],
+    [[1,"Mahirap","Walang pagsusuri, nagsisimulang gumupit nang hindi sinusuri ang buhok"],[2,"Mahina","Minimal na obserbasyon, nakaligtaan ang mga pangunahing katangian tulad ng densidad"],[3,"Katanggap-tanggap","Natutukoy ang pangunahing uri ng buhok at densidad, limitadong pagbabasa ng pattern"],[4,"Malakas","Wastong binabasa ang densidad, pattern ng paglaki, at hugis ng ulo — ginagamit para sa plano"],[5,"Napakahusay","Masusing at tumpak na pagsusuri, kumpiyansang natutukoy ang lahat ng salik bago hawakan"]],
+    [[1,"Mahirap","Walang planong ipinabatid, agad na gumugupit nang walang istruktura"],[2,"Mahina","Malabong plano, hindi malinaw ang mga pagpili ng teknik"],[3,"Katanggap-tanggap","Pangunahing plano, angkop ngunit hindi ganap na ipinaliwanag"],[4,"Malakas","Malinaw na planong may istruktura, nagsasagawa ng D.F.S nang pangunahin"],[5,"Napakahusay","Kumpiyansa at detalyadong plano, ganap na isinasagawa ang D.F.S"]],
+    [[1,"Mahirap","Walang tanong, inaakalang alam ng barbero ang gusto ng kliyente"],[2,"Mahina","Isa o dalawang pangunahing tanong, walang kumpirmasyon ng pag-unawa"],[3,"Katanggap-tanggap","Nagtatanong ng may kaugnayan, kumpirmado ang pangkalahatang direksyon"],[4,"Malakas","Malinaw at may istrukturang mga tanong, nararamdaman ng kliyente na naririnig"],[5,"Napakahusay","Buong konsultasyon, aktibong pakikinig, isinasaalang-alang ang imahe hindi lamang buhok"]],
+    [[1,"Mahirap","Gumugupit nang walang kumpirmasyon, binabalewala ang feedback ng kliyente"],[2,"Mahina","Nagtatanong kung handa ngunit hindi tinitingnan kung naiintindihan ang plano"],[3,"Katanggap-tanggap","Nakakakuha ng pangunahing pahintulot bago magsimula"],[4,"Malakas","Malinaw na ipinapaliwanag ang plano gamit ang visual na sanggunian"],[5,"Napakahusay","Perpektong pagkakatugma, nagsisimula lamang kapag 100% kumpiyansa ang kliyente"]],
+    [[1,"Mahirap","Walang payo, hinahayaang umalis ang kliyente nang walang paliwanag sa maintenance"],[2,"Mahina","Binabanggit ang pangalan ng produkto ngunit walang malinaw na tagubilin"],[3,"Katanggap-tanggap","Nagmumungkahi ng tamang uri ng produkto at nagbibigay ng pangunahing tip"],[4,"Malakas","Ipinapaliwanag nang eksakto kung paano mag-istilo, inirerekomenda ang produkto"],[5,"Napakahusay","Kumpletong rutina ng pag-aalaga, nagpapakita ng paglalagay ng produkto, malinaw na iskedyul"]],
+    [[1,"Mahirap","Walang pagbati, malamig o mapaghamak na saloobin, nararamdamang binabalewala"],[2,"Mahina","Pangunahing pagbati ngunit walang init, limitadong komunikasyon"],[3,"Katanggap-tanggap","Magalang na pagbati, propesyonal na saloobin, minimal na interaksyon"],[4,"Malakas","Mainit at kumpiyansang pagbati, magandang eye contact, agad na napapanatag"],[5,"Napakahusay","Pambihirang unang impresyon, ganap na mapansin, nararamdamang pinahahalagahan"]],
+    [[1,"Mahirap","Marahas na paghawak, kitang-kita ang hindi ginhawa ng kliyente"],[2,"Mahina","Hindi pare-parehong paghawak, ilang sandali ng hindi ginhawa"],[3,"Katanggap-tanggap","Pangkalahatang malambot, komportable ang kliyente sa karamihan ng oras"],[4,"Malakas","Maayos at may layuning mga galaw, komportable sa buong oras"],[5,"Napakahusay","Walang kahirapang paghawak, ganap na panatag, maayos at propesyonal na mga galaw"]],
+    [[1,"Mahirap","Hindi tumutugma ang resulta sa napag-usapan, kitang-kita ang hindi kasiyahan"],[2,"Mahina","Bahagyang tumutugma ang resulta, hindi nagtatanong bago tapusin"],[3,"Katanggap-tanggap","Natutugunan ang pangunahing inaasahan, walang payo sa aftercare"],[4,"Malakas","Tumutugma sa konsultasyon, nagpapaliwanag ng istilo, kumpirmado ang kasiyahan"],[5,"Napakahusay","Nalampasan ang inaasahan, ganap na gabay sa aftercare"]],
+    [[1,"Mahirap","Maruming estasyon, gumagamit ng hindi na-sanitize na kagamitan"],[2,"Mahina","Magulo ang estasyon, ginagawa ang sanitasyon kapag na-prompt lamang"],[3,"Katanggap-tanggap","Pangkalahatang maayos, sumusunod sa pangunahing sanitasyon"],[4,"Malakas","Malinis at organisado, regular na ina-sanitize ang kagamitan sa harap ng kliyente"],[5,"Napakahusay","Walang kapintasan na mga gawi, tuloy-tuloy na paglilinis, mahigpit na sanitasyon"]],
+    [[1,"Mahirap","Magulo, labis na nasayang ang oras, walang malinaw na daloy ng trabaho"],[2,"Mahina","May ilang istruktura ngunit madalas na paghinto, hindi mahusay na paggamit ng kagamitan"],[3,"Katanggap-tanggap","Makatwirang bilis, may daloy ngunit may ilang hindi kahusayan"],[4,"Malakas","Mahusay at organisado, may layunin ang paggamit ng kagamitan, minimal na downtime"],[5,"Napakahusay","Maayos at kumpiyansang daloy, walang nasayang na galaw, kalidad at kahusayan"]],
+  ]
+};
+
+// ── BARBERS DATA (from Notion export, updated) ────────────────────────────────
+const barbers=[
+  {name:"Rafael",branch:"POD",status:"Standout",a1Gear:"Gear 2",a1Score:48,a2Gear:"Gear 2",a2Score:52,improvement:8.3,scoreChange:4,gearProgress:"⬆️ Improved",technical:{sectioning:3.5,scissor:4,clipper:4,finishing:3,styling:3.5},technical2:{sectioning:4,scissor:3.5,clipper:4,finishing:3.5,styling:2.5},consultation:{hairAnalysis:4,planning:3,communication:4,alignment:3,aftercare:3},consultation2:{hairAnalysis:3,planning:4,communication:4,alignment:4,aftercare:3.5},satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:1},satisfaction2:{greeting:3,handling:3,finalResult:3,hygiene:3.5,standards:3},strengths:"Willing to improve, nice techniques, sectioning control, grade technique, section understanding",improvements:"Hurricane techniques reinforcement, DFS formula, social media cross checking"},
+  {name:"Meljhon",branch:"POD",status:"On Watch",a1Gear:"Gear 1",a1Score:32,a2Gear:"Gear 1",a2Score:43,improvement:34.4,scoreChange:11,gearProgress:"⬆️ Improved",technical:{sectioning:1,scissor:1,clipper:3,finishing:3,styling:2},technical2:{sectioning:3,scissor:2,clipper:3.5,finishing:3,styling:3},consultation:{hairAnalysis:1,planning:1,communication:2,alignment:1,aftercare:2},consultation2:{hairAnalysis:2.5,planning:3,communication:2.5,alignment:3,aftercare:2.5},satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},strengths:"Basic hair cutting understanding, scissor handling, basics in elevation, sectioning and over direction",improvements:"Was very engaged and wants to learn more"},
+  {name:"Harold",branch:"POD",status:"Standout",a1Gear:"Gear 2",a1Score:46,a2Gear:"Gear 2",a2Score:51.8,improvement:12.6,scoreChange:5.8,gearProgress:"➖ No Change",technical:{sectioning:4,scissor:3,clipper:3,finishing:4.5,styling:2.5},technical2:{sectioning:3,scissor:2.5,clipper:4.5,finishing:3,styling:2.5},consultation:{hairAnalysis:3,planning:3,communication:2,alignment:2.5,aftercare:2.5},consultation2:{hairAnalysis:4.3,planning:4.2,communication:4,alignment:4,aftercare:3},satisfaction:{greeting:3,handling:3,finalResult:4,hygiene:3,standards:3},satisfaction2:{greeting:3.5,handling:3,finalResult:3.8,hygiene:3.5,standards:3},strengths:"Great fades, intention of improving and learning, practical, classic vision",improvements:"Basic haircutting techniques, body position, consultation, product use"},
+  {name:"Ryan",branch:"POD",status:"On Watch",a1Gear:"Gear 1",a1Score:35.5,a2Gear:"Gear 1",a2Score:35.5,improvement:0,scoreChange:0,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:1.5,clipper:2,finishing:3,styling:2},technical2:{sectioning:3,scissor:1.5,clipper:3.5,finishing:3,styling:2},consultation:{hairAnalysis:2.5,planning:2,communication:1,alignment:2,aftercare:1.5},consultation2:{hairAnalysis:2,planning:2.5,communication:2,alignment:2,aftercare:1},satisfaction:{greeting:3,handling:3.5,finalResult:2.5,hygiene:3,standards:3},satisfaction2:{greeting:3,handling:1.5,finalResult:3.5,hygiene:3,standards:3},strengths:"Classic barber, respectful",improvements:"Basic haircutting techniques, consultation, communication, styling, aftercare, body position, tools"},
+  {name:"Carlo",branch:"POD",status:"Standout",a1Gear:"Gear 2",a1Score:47.5,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:3,scissor:3.5,clipper:3.5,finishing:4,styling:4},technical2:null,consultation:{hairAnalysis:3.5,planning:2,communication:1.5,alignment:3.5,aftercare:3},consultation2:null,satisfaction:{greeting:2.5,handling:3,finalResult:4.5,hygiene:3,standards:3},satisfaction2:null,strengths:"Great technique, likes to cut hair, very interested in improving, great tool set",improvements:"Communication, importance of consultation, image advice, body position, scissor control, advanced haircutting techniques"},
+  {name:"Robin",branch:"POD",status:"On Watch",a1Gear:"Gear 1",a1Score:43,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:3.5,scissor:3.5,clipper:3,finishing:3,styling:3},technical2:null,consultation:{hairAnalysis:3,planning:2,communication:2.5,alignment:3,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:2.5,standards:3},satisfaction2:null,strengths:"Technique understanding",improvements:"Technique reinforcement across all areas"},
+  {name:"Aurelio",branch:"PPM",status:"On Watch",a1Gear:"Gear 1",a1Score:41,a2Gear:"Gear 2",a2Score:45.5,improvement:11,scoreChange:4.5,gearProgress:null,technical:{sectioning:3,scissor:3,clipper:3,finishing:3,styling:3},technical2:{sectioning:2.4,scissor:2.5,clipper:3,finishing:2.8,styling:2},consultation:{hairAnalysis:2,planning:3,communication:2,alignment:3,aftercare:2},consultation2:{hairAnalysis:3.2,planning:3.8,communication:3.5,alignment:3.7,aftercare:1.5},satisfaction:{greeting:3,handling:2,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:3.5,finalResult:3.6,hygiene:3,standards:3},strengths:"Kind fade, attitude to learn",improvements:"Communication, consultation explanation, fundamentals of hair cutting"},
+  {name:"Benny",branch:"PPM",status:"On Watch",a1Gear:"Gear 1",a1Score:38,a2Gear:"Gear 1",a2Score:44.5,improvement:17.1,scoreChange:6.5,gearProgress:null,technical:{sectioning:2,scissor:2,clipper:4,finishing:3,styling:2},technical2:{sectioning:1.8,scissor:2.2,clipper:3.2,finishing:3,styling:2.4},consultation:{hairAnalysis:2,planning:2,communication:2,alignment:3,aftercare:2},consultation2:{hairAnalysis:2.4,planning:2.5,communication:3,alignment:3.2,aftercare:1.6},satisfaction:{greeting:2,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:3.2,finalResult:3,hygiene:5,standards:4},strengths:"Classic barber, experience",improvements:"Basic technical, barber head fundamentals, consultation, body position, blow drying"},
+  {name:"Randy",branch:"PPM",status:"On Watch",a1Gear:"Gear 1",a1Score:37,a2Gear:"Gear 1",a2Score:44.5,improvement:20.3,scoreChange:7.5,gearProgress:null,technical:{sectioning:1,scissor:2,clipper:3,finishing:3,styling:2},technical2:{sectioning:1.4,scissor:2.8,clipper:3.4,finishing:3,styling:3},consultation:{hairAnalysis:2,planning:2,communication:2,alignment:2,aftercare:2},consultation2:{hairAnalysis:2,planning:2.8,communication:2,alignment:3.5,aftercare:1.8},satisfaction:{greeting:3,handling:4,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:4,finalResult:3.5,hygiene:3,standards:4.5},strengths:"Empathic, lots of customers, skill to fix haircuts, adaptation, shows signs of caring about learning",improvements:"Basic haircut fundamentals, consultation, communication, body mechanics"},
+  {name:"Ronaldo",branch:"PPM",status:"On Watch",a1Gear:"Gear 1",a1Score:40.1,a2Gear:"Gear 1",a2Score:42.1,improvement:5,scoreChange:2,gearProgress:null,technical:{sectioning:2,scissor:1.9,clipper:3.2,finishing:3,styling:2.3},technical2:{sectioning:1.4,scissor:2.8,clipper:3.2,finishing:3,styling:2},consultation:{hairAnalysis:2,planning:2.5,communication:2.5,alignment:3,aftercare:2},consultation2:{hairAnalysis:2.8,planning:2.8,communication:3.4,alignment:3.5,aftercare:1},satisfaction:{greeting:3.4,handling:3,finalResult:3.3,hygiene:3,standards:3},satisfaction2:{greeting:3.5,handling:3.5,finalResult:3.9,hygiene:2.3,standards:3},strengths:"Kind, fast, practical",improvements:"Attitude, overall hair fundamentals, body position, mentality alignment"},
+  {name:"Jojo",branch:"LEV",status:"On Watch",a1Gear:"Gear 1",a1Score:38,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:3,scissor:3,clipper:3,finishing:2,styling:2},technical2:null,consultation:{hairAnalysis:3,planning:3,communication:2,alignment:2,aftercare:2},consultation2:null,satisfaction:{greeting:2,handling:2,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Capability on understanding and adapting, patience, client alignment",improvements:"Styling, consultation, basic haircutting understanding, blow drying"},
+  {name:"Cris",branch:"LEV",status:"Probation",a1Gear:"Gear 1",a1Score:35.5,a2Gear:"Gear 2",a2Score:45,improvement:26.8,scoreChange:9.5,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:3,clipper:3,finishing:2,styling:2},technical2:{sectioning:2.5,scissor:2.5,clipper:3,finishing:3,styling:2},consultation:{hairAnalysis:2,planning:2,communication:2,alignment:2,aftercare:1.5},consultation2:{hairAnalysis:2,planning:3.5,communication:3.5,alignment:4,aftercare:3},satisfaction:{greeting:2,handling:3,finalResult:2,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:3,finalResult:3,hygiene:3,standards:3},strengths:"Classic barber confidence",improvements:"Practical barber, lack of attitude for learning, motivation issue, basic haircutting techniques, scissors body mechanics"},
+  {name:"William",branch:"LEV",status:"On Watch",a1Gear:"Gear 1",a1Score:41,a2Gear:"Gear 1",a2Score:40,improvement:-2.4,scoreChange:-1,gearProgress:"⬇️ Declined",technical:{sectioning:3,scissor:3,clipper:3,finishing:3,styling:2},technical2:{sectioning:3,scissor:2.5,clipper:3,finishing:3,styling:2},consultation:{hairAnalysis:2,planning:2,communication:2,alignment:3,aftercare:3},consultation2:{hairAnalysis:1.5,planning:2,communication:1.5,alignment:3,aftercare:3},satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:3.5,handling:3,finalResult:3,hygiene:3,standards:3},strengths:"Understanding, passion, attention to detail",improvements:"Security in speaking and presenting, consultation explanation, D.F.S basics, body mechanics"},
+  {name:"Eddie",branch:"LEV",status:"Probation",a1Gear:"Gear 1",a1Score:35,a2Gear:"Gear 1",a2Score:39.5,improvement:12.9,scoreChange:4.5,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:2,clipper:2,finishing:3,styling:2},technical2:{sectioning:3,scissor:2,clipper:3.5,finishing:3,styling:2},consultation:{hairAnalysis:1,planning:2,communication:1,alignment:2,aftercare:2},consultation2:{hairAnalysis:3,planning:3,communication:2,alignment:2,aftercare:1},satisfaction:{greeting:4,handling:3,finalResult:2,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:3,finalResult:1,hygiene:4,standards:3},strengths:"Charismatic, confident, clipper work, practicality",improvements:"Basic haircutting understanding, consultation, techniques (great potential)"},
+  {name:"Raymart",branch:"LEV",status:"Standout",a1Gear:"Gear 2",a1Score:48,a2Gear:"Gear 2",a2Score:49.5,improvement:3.1,scoreChange:1.5,gearProgress:"⬆️ Improved",technical:{sectioning:4,scissor:3,clipper:4,finishing:4,styling:2},technical2:{sectioning:3,scissor:3,clipper:3.5,finishing:3,styling:2},consultation:{hairAnalysis:3,planning:4,communication:2,alignment:4,aftercare:2},consultation2:{hairAnalysis:3,planning:3,communication:4,alignment:4,aftercare:3.5},satisfaction:{greeting:3,handling:4,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:4,handling:3,finalResult:3,hygiene:3.5,standards:3},strengths:"Strong technical base, good consultation, hair analysis",improvements:"Advanced styling, consistency across all categories"},
+  {name:"Gab",branch:"EROD",status:"Standout",a1Gear:"Gear 2",a1Score:45,a2Gear:"Gear 2",a2Score:51.1,improvement:13.6,scoreChange:6.1,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:3,clipper:3,finishing:3,styling:4},technical2:{sectioning:3,scissor:3,clipper:3.8,finishing:4,styling:4},consultation:{hairAnalysis:2,planning:3,communication:3,alignment:3,aftercare:2},consultation2:{hairAnalysis:4,planning:3.8,communication:3.5,alignment:3.5,aftercare:4},satisfaction:{greeting:3,handling:3,finalResult:4,hygiene:3,standards:3},satisfaction2:{greeting:3.5,handling:3,finalResult:4,hygiene:1,standards:3},strengths:"Attitude improvement, knowledge and experience",improvements:"Scissor control, body mechanics, consultation DFS, social media advice, fade shapes"},
+  {name:"Raybasa",branch:"EROD",status:"Standout",a1Gear:"Gear 1",a1Score:43,a2Gear:"Gear 3",a2Score:53.4,improvement:24.2,scoreChange:10.4,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:2,clipper:3,finishing:3,styling:2},technical2:{sectioning:3.5,scissor:3,clipper:4,finishing:3,styling:2.8},consultation:{hairAnalysis:3,planning:3,communication:3,alignment:3,aftercare:2},consultation2:{hairAnalysis:3,planning:3.4,communication:3.5,alignment:4.2,aftercare:2.8},satisfaction:{greeting:3,handling:3,finalResult:4,hygiene:3,standards:3},satisfaction2:{greeting:4.2,handling:4,finalResult:4,hygiene:4,standards:3},strengths:"Understanding, disposition, set up",improvements:"Focus on DFS technique, blow drying, body mechanics"},
+  {name:"Michael",branch:"EROD",status:"On Watch",a1Gear:"Gear 1",a1Score:39,a2Gear:"Gear 1",a2Score:44.8,improvement:14.9,scoreChange:5.8,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:3,clipper:3,finishing:3,styling:2},technical2:{sectioning:2.5,scissor:2.5,clipper:3,finishing:3,styling:2},consultation:{hairAnalysis:2,planning:3,communication:2,alignment:2,aftercare:2},consultation2:{hairAnalysis:2,planning:2.5,communication:3,alignment:3.5,aftercare:2.1},satisfaction:{greeting:3,handling:3,finalResult:2,hygiene:3,standards:3},satisfaction2:{greeting:3.5,handling:3.5,finalResult:4,hygiene:3.7,standards:3},strengths:"Communication skills, consultation can improve and be very good",improvements:"Body position, fundamentals of hair cutting, styling, elevations"},
+  {name:"Fred",branch:"EROD",status:"Standout",a1Gear:"Gear 2",a1Score:46,a2Gear:"Gear 3",a2Score:53.7,improvement:16.7,scoreChange:7.7,gearProgress:"⬆️ Improved",technical:{sectioning:3,scissor:3,clipper:4,finishing:3,styling:3},technical2:{sectioning:4,scissor:3.7,clipper:4,finishing:3.4,styling:3},consultation:{hairAnalysis:3,planning:3,communication:3,alignment:3,aftercare:3},consultation2:{hairAnalysis:3.8,planning:4.3,communication:4,alignment:4,aftercare:3.5},satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:{greeting:3,handling:3.3,finalResult:3,hygiene:3.4,standards:2.8},strengths:"Technique knowledge, mentality",improvements:"Social media alignment, consultation, image advice, DFS tips"},
+  {name:"Dan",branch:"EROD",status:"On Watch",a1Gear:"Gear 1",a1Score:43,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:3,scissor:3,clipper:3,finishing:3,styling:3},technical2:null,consultation:{hairAnalysis:3,planning:3,communication:2,alignment:3,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Disposition, common sense, fade",improvements:"Basic fundamentals of hair cutting, shapes, elevations, angles, styling, communication skills"},
+  {name:"Ram Fel",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:36.5,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2.5,scissor:1.5,clipper:3,finishing:3,styling:2},technical2:null,consultation:{hairAnalysis:1.5,planning:2,communication:1.5,alignment:3,aftercare:1},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:4,hygiene:3,standards:3},satisfaction2:null,strengths:"Experience, practicality, relaxed manner",improvements:"Scissor control, body mechanics, basic haircutting, shapes, elevations, consultation, aftercare, image advice, attitude toward customer"},
+  {name:"Jayson",branch:"BGC",status:"Standout",a1Gear:"Gear 2",a1Score:49,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:4,scissor:3,clipper:4,finishing:4,styling:3},technical2:null,consultation:{hairAnalysis:4,planning:3,communication:3,alignment:3,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:4,hygiene:3,standards:3},satisfaction2:null,strengths:"Great understanding, very interested in haircutting technique, willing to improve",improvements:"Styling, customer communication, body mechanics, advanced haircutting, social media advice"},
+  {name:"Nap",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:37,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2,scissor:2,clipper:3.5,finishing:3,styling:2},technical2:null,consultation:{hairAnalysis:2,planning:2,communication:2,alignment:2,aftercare:1.5},consultation2:null,satisfaction:{greeting:3,handling:3.5,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Attention to detail, patience, interest on learning, great adaptation and fades",improvements:"Customer consultation, aftercare, communication, hair analysis, basic haircutting, scissors and body position"},
+  {name:"Garnet",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:36,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2,scissor:2,clipper:3,finishing:2,styling:2},technical2:null,consultation:{hairAnalysis:2,planning:2,communication:2,alignment:2,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Young, can learn and adapt, energetic, great with people",improvements:"Basic haircutting, body position, communication, consultation principles, needs to relax"},
+  {name:"Runel",branch:"BGC",status:"Standout",a1Gear:"Gear 1",a1Score:43,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2.5,scissor:2.5,clipper:4,finishing:3.5,styling:2.5},technical2:null,consultation:{hairAnalysis:2.5,planning:2.5,communication:3.5,alignment:3.5,aftercare:2},consultation2:null,satisfaction:{greeting:2,handling:3,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Great understanding, willing to learn, motivated, great fades",improvements:"Medium to advanced haircutting, consultation and speaking skills, body position, scissor technique, social media alignment"},
+  {name:"Jonel",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:36,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2,scissor:1,clipper:3,finishing:3,styling:2},technical2:null,consultation:{hairAnalysis:3,planning:2,communication:2,alignment:2,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:3,finalResult:2,hygiene:3,standards:3},satisfaction2:null,strengths:"Great attitude with customers, wants to learn and improve, makes customers feel relaxed",improvements:"Basic haircutting, elevations, shapes, communication, consultation, styling, sectioning, scissor control"},
+  {name:"Jovi",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:40.5,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2.5,scissor:2,clipper:3,finishing:3,styling:3},technical2:null,consultation:{hairAnalysis:2,planning:2,communication:3,alignment:2,aftercare:2},consultation2:null,satisfaction:{greeting:3.5,handling:3,finalResult:3.5,hygiene:3,standards:3},satisfaction2:null,strengths:"Practicality, good with people, great and fast fades",improvements:"Medium haircut understanding, customer consultation, aftercare, hair analysis, basic head shapes"},
+  {name:"Kevin",branch:"BGC",status:"Standout",a1Gear:"Gear 1",a1Score:44.5,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2.5,scissor:3,clipper:3,finishing:3.5,styling:2},technical2:null,consultation:{hairAnalysis:2,planning:2.5,communication:3,alignment:2.5,aftercare:2.5},consultation2:null,satisfaction:{greeting:4,handling:4,finalResult:3,hygiene:3,standards:4},satisfaction2:null,strengths:"Service F&S alignment, customer care, basic technical skill",improvements:"Medium haircut understanding, body position, consultation, aftercare, social media advice"},
+  {name:"Ron",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:36.5,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:1.5,scissor:1.5,clipper:2,finishing:2.5,styling:2.5},technical2:null,consultation:{hairAnalysis:2.5,planning:2,communication:3,alignment:2,aftercare:2},consultation2:null,satisfaction:{greeting:2.5,handling:3.5,finalResult:3,hygiene:3,standards:3},satisfaction2:null,strengths:"Practical, great manner",improvements:"General haircutting understanding, customer advice, consultation, body position"},
+  {name:"Jay",branch:"BGC",status:"Standout",a1Gear:"Gear 2",a1Score:51,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:4,scissor:3,clipper:4,finishing:4,styling:3},technical2:null,consultation:{hairAnalysis:3,planning:3,communication:4,alignment:3,aftercare:2},consultation2:null,satisfaction:{greeting:3,handling:4,finalResult:4,hygiene:3,standards:4},satisfaction2:null,strengths:"Great understanding, great attitude, good haircut results, sectioning and clipper work",improvements:"Strengthen existing knowledge, improve body position, advanced haircutting, social media advice"},
+  {name:"Mel",branch:"BGC",status:"Standout",a1Gear:"Gear 2",a1Score:45,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:3,scissor:2.5,clipper:3,finishing:3,styling:2},technical2:null,consultation:{hairAnalysis:2,planning:3,communication:2,alignment:3,aftercare:2},consultation2:null,satisfaction:{greeting:4,handling:4,finalResult:3.5,hygiene:4,standards:4},satisfaction2:null,strengths:"Felipe and Sons alignment, professional attitude, practical, classic",improvements:"Basic haircut understanding, consultation, planning, aftercare communication, social media advice"},
+  {name:"Noel",branch:"BGC",status:"On Watch",a1Gear:"Gear 1",a1Score:42.9,a2Gear:null,a2Score:null,improvement:null,scoreChange:null,gearProgress:null,technical:{sectioning:2.5,scissor:2,clipper:3,finishing:2,styling:2},technical2:null,consultation:{hairAnalysis:3,planning:2,communication:3,alignment:4,aftercare:3},consultation2:null,satisfaction:{greeting:4,handling:3,finalResult:3,hygiene:2.4,standards:4},satisfaction2:null,strengths:"Consultation, client alignment",improvements:"Haircutting fundamentals, thinning, texturing, scissor control, knowledge on shapes"},
+];
+
+// ── GEAR / STATUS helpers ─────────────────────────────────────────────────────
+const GC={"Gear 1":{bg:"#2a1a0a",border:"#c97c2a",text:"#f0a855",label:"G1"},"Gear 2":{bg:"#0a1a2a",border:"#2a7cc9",text:"#5ab4f0",label:"G2"},"Gear 3":{bg:"#0a2a1a",border:"#2ac97c",text:"#55f0b4",label:"G3"}};
+const SS={"Standout":{bg:"rgba(34,197,94,0.1)",border:"#22c55e",text:"#22c55e"},"On Watch":{bg:"rgba(234,179,8,0.1)",border:"#eab308",text:"#eab308"},"Probation":{bg:"rgba(239,68,68,0.1)",border:"#ef4444",text:"#ef4444"},"Pending":{bg:"rgba(148,163,184,0.1)",border:"#94a3b8",text:"#94a3b8"}};
+const BRANCHES=["All","BGC","PPM","POD","LEV","EROD"];
+const STATUSES_EN=["All","Standout","On Watch","Probation","Pending"];
+const STATUSES_TL=["Lahat","Nangunguna","Sa Bantay","Probasyonal","Nakabinbin"];
+
+function ScoreBar({value}){
+  const pct=Math.max(0,Math.min(100,(value/5)*100));
+  const c=value>=4?"#22c55e":value>=3?"#c8a96e":value>=2?"#eab308":"#ef4444";
+  return(<div style={{display:"flex",alignItems:"center",gap:6}}><div style={{flex:1,height:4,background:"#1e1e1e",borderRadius:2,overflow:"hidden"}}><div style={{width:`${pct}%`,height:"100%",background:c,borderRadius:2}}/></div><span style={{fontSize:11,color:"#9ca3af",minWidth:24,textAlign:"right",fontFamily:"monospace"}}>{value?value.toFixed(1):"—"}</span></div>);
+}
+function CatScore({label,score,score2}){
+  return(<div style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,color:"#9ca3af"}}>{label}</span>{score2!=null&&<span style={{fontSize:10,color:score2>score?"#22c55e":score2<score?"#ef4444":"#9ca3af"}}>{score2>score?"▲":score2<score?"▼":"—"} A2</span>}</div><ScoreBar value={score}/>{score2!=null&&<div style={{marginTop:3}}><ScoreBar value={score2}/></div>}</div>);
+}
+
+function BarberCard({b,t,lang}){
+  const [open,setOpen]=useState(false);
+  const gc=GC[b.a1Gear]||GC["Gear 1"];
+  const sc=SS[b.status]||SS["Pending"];
+  const ds=b.a2Score||b.a1Score||0;
+  const hasA2=b.a2Score!=null&&b.a2Score>0;
+  const tA=b.technical?Object.values(b.technical).reduce((a,v)=>a+v,0)/5:0;
+  const cA=b.consultation?Object.values(b.consultation).reduce((a,v)=>a+v,0)/5:0;
+  const sA=b.satisfaction?Object.values(b.satisfaction).reduce((a,v)=>a+v,0)/5:0;
+  const statusLabel=lang==='tl'?(b.status==="Standout"?"Nangunguna":b.status==="On Watch"?"Sa Bantay":b.status==="Probation"?"Probasyonal":b.status==="Pending"?"Nakabinbin":b.status):b.status;
+  return(
+    <div style={{background:"#111",border:"1px solid #222",borderRadius:2,marginBottom:10,overflow:"hidden"}}>
+      <div onClick={()=>setOpen(!open)} style={{display:"flex",alignItems:"center",padding:"13px 16px",cursor:"pointer",gap:12}}>
+        <div style={{minWidth:36,height:36,borderRadius:2,background:gc.bg,border:`1px solid ${gc.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:gc.text,letterSpacing:1}}>{gc.label}</div>
+        <div style={{flex:1}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:"#f0ece4"}}>{b.name}</span>
+            <span style={{fontSize:10,color:"#555",background:"#1a1a1a",padding:"2px 6px",borderRadius:2,letterSpacing:1}}>{b.branch}</span>
+          </div>
+          <div style={{display:"flex",gap:6,marginTop:4,alignItems:"center",flexWrap:"wrap"}}>
+            <span style={{fontSize:10,padding:"1px 7px",borderRadius:2,letterSpacing:0.8,background:sc.bg,border:`1px solid ${sc.border}`,color:sc.text}}>{statusLabel}</span>
+            {b.gearProgress&&<span style={{fontSize:10,color:b.gearProgress.includes("⬆️")?"#22c55e":b.gearProgress.includes("⬇️")?"#ef4444":"#9ca3af"}}>{b.gearProgress}</span>}
+          </div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontFamily:"monospace",fontSize:22,color:"#c8a96e",fontWeight:700,lineHeight:1}}>{ds>0?ds.toFixed(1):"—"}</div>
+          <div style={{fontSize:9,color:"#555",marginTop:2,letterSpacing:1}}>/ 75</div>
+          {hasA2&&b.improvement!=null&&b.improvement!==0&&<div style={{fontSize:10,color:b.improvement>0?"#22c55e":"#ef4444",marginTop:2}}>{b.improvement>0?"+":""}{b.improvement}%</div>}
+        </div>
+        <div style={{display:"flex",gap:4,marginLeft:8}}>
+          {[{l:"T",v:tA,c:"#c8a96e"},{l:"C",v:cA,c:"#5ab4f0"},{l:"S",v:sA,c:"#22c55e"}].map(({l,v,c})=>(
+            <div key={l} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+              <div style={{width:6,height:Math.max(4,(v/5)*40),background:c,borderRadius:1,opacity:0.8}}/>
+              <span style={{fontSize:8,color:"#444"}}>{l}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{color:"#444",fontSize:12,marginLeft:8}}>{open?"▲":"▼"}</div>
+      </div>
+      {open&&(
+        <div style={{borderTop:"1px solid #1a1a1a",padding:16}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+            <div>
+              <div style={{fontSize:10,letterSpacing:2,color:"#c8a96e",marginBottom:10,textTransform:"uppercase"}}>✂ {t.technical}</div>
+              {b.technical&&<><CatScore label={t.factors[0]} score={b.technical.sectioning} score2={b.technical2?.sectioning}/><CatScore label={t.factors[1]} score={b.technical.scissor} score2={b.technical2?.scissor}/><CatScore label={t.factors[2]} score={b.technical.clipper} score2={b.technical2?.clipper}/><CatScore label={t.factors[3]} score={b.technical.finishing} score2={b.technical2?.finishing}/><CatScore label={t.factors[4]} score={b.technical.styling} score2={b.technical2?.styling}/></>}
+            </div>
+            <div>
+              <div style={{fontSize:10,letterSpacing:2,color:"#5ab4f0",marginBottom:10,textTransform:"uppercase"}}>💬 {t.consultation}</div>
+              {b.consultation&&<><CatScore label={t.factors[5]} score={b.consultation.hairAnalysis} score2={b.consultation2?.hairAnalysis}/><CatScore label={t.factors[6]} score={b.consultation.planning} score2={b.consultation2?.planning}/><CatScore label={t.factors[7]} score={b.consultation.communication} score2={b.consultation2?.communication}/><CatScore label={t.factors[8]} score={b.consultation.alignment} score2={b.consultation2?.alignment}/><CatScore label={t.factors[9]} score={b.consultation.aftercare} score2={b.consultation2?.aftercare}/></>}
+            </div>
+            <div>
+              <div style={{fontSize:10,letterSpacing:2,color:"#22c55e",marginBottom:10,textTransform:"uppercase"}}>🤝 {t.satisfaction}</div>
+              {b.satisfaction&&<><CatScore label={t.factors[10]} score={b.satisfaction.greeting} score2={b.satisfaction2?.greeting}/><CatScore label={t.factors[11]} score={b.satisfaction.handling} score2={b.satisfaction2?.handling}/><CatScore label={t.factors[12]} score={b.satisfaction.finalResult} score2={b.satisfaction2?.finalResult}/><CatScore label={t.factors[13]} score={b.satisfaction.hygiene} score2={b.satisfaction2?.hygiene}/><CatScore label={t.factors[14]} score={b.satisfaction.standards} score2={b.satisfaction2?.standards}/></>}
+            </div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginTop:16,borderTop:"1px solid #1a1a1a",paddingTop:14}}>
+            <div><div style={{fontSize:10,letterSpacing:1.5,color:"#22c55e",marginBottom:6,textTransform:"uppercase"}}>✦ {t.strengths}</div><p style={{fontSize:12,color:"#9ca3af",lineHeight:1.6,margin:0}}>{b.strengths||"—"}</p></div>
+            <div><div style={{fontSize:10,letterSpacing:1.5,color:"#f0a855",marginBottom:6,textTransform:"uppercase"}}>▲ {t.improvements}</div><p style={{fontSize:12,color:"#9ca3af",lineHeight:1.6,margin:0}}>{b.improvements||"—"}</p></div>
+          </div>
+          {hasA2&&(
+            <div style={{borderTop:"1px solid #1a1a1a",paddingTop:14,marginTop:14,display:"flex",gap:24,alignItems:"center",flexWrap:"wrap"}}>
+              <div><div style={{fontSize:9,color:"#555",letterSpacing:1,marginBottom:4}}>{t.a1.toUpperCase()}</div><span style={{fontFamily:"monospace",fontSize:18,color:"#9ca3af"}}>{b.a1Score}</span><span style={{fontSize:10,color:"#444",marginLeft:4}}>{b.a1Gear}</span></div>
+              <div style={{color:"#333",fontSize:18}}>→</div>
+              <div><div style={{fontSize:9,color:"#555",letterSpacing:1,marginBottom:4}}>{t.a2.toUpperCase()}</div><span style={{fontFamily:"monospace",fontSize:18,color:"#c8a96e"}}>{b.a2Score}</span><span style={{fontSize:10,color:"#444",marginLeft:4}}>{b.a2Gear}</span></div>
+              <span style={{fontSize:13,color:b.scoreChange>0?"#22c55e":b.scoreChange<0?"#ef4444":"#9ca3af",marginLeft:8}}>{b.scoreChange>0?`+${b.scoreChange}`:b.scoreChange} {t.pts} {b.improvement>0?`(+${b.improvement}%)`:`(${b.improvement}%)`}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScoreBadge({score}){
+  const c=score>=4?"#22c55e":score>=3?"#c8a96e":score>=2?"#eab308":"#ef4444";
+  return <span style={{display:"inline-block",width:22,height:22,borderRadius:"50%",background:c,color:"#0a0a0a",fontSize:11,fontWeight:700,textAlign:"center",lineHeight:"22px",marginRight:6}}>{score}</span>;
+}
+
+function RubricSection({title,sub,color,factorGroups,t,lang}){
+  const [open,setOpen]=useState(true);
+  return(
+    <div style={{marginBottom:24,border:"1px solid #1a1a1a",borderRadius:2,overflow:"hidden"}}>
+      <div onClick={()=>setOpen(!open)} style={{padding:"14px 18px",background:"#0e0e0e",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",borderLeft:`3px solid ${color}`}}>
+        <div><div style={{fontSize:13,fontWeight:600,color,letterSpacing:0.5}}>{title}</div><div style={{fontSize:11,color:"#555",marginTop:3}}>{sub}</div></div>
+        <span style={{color:"#444",fontSize:13}}>{open?"▲":"▼"}</span>
+      </div>
+      {open&&(
+        <div style={{padding:"16px 18px"}}>
+          {factorGroups.map(([fname,rows],fi)=>(
+            <div key={fi} style={{marginBottom:20}}>
+              <div style={{fontSize:11,color:"#f0ece4",letterSpacing:1,marginBottom:8,fontWeight:500}}>{fi+1}. {fname}</div>
+              <table className="rubric-table">
+                <thead><tr><th>{t.score}</th><th>{t.label}</th><th>{t.whatLooks}</th></tr></thead>
+                <tbody>{rows.map(([sc,lbl,desc])=>(
+                  <tr key={sc}><td><ScoreBadge score={sc}/></td><td style={{color:"#c8a96e",whiteSpace:"nowrap",fontSize:11}}>{lbl}</td><td>{desc}</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RubricTab({t,lang}){
+  const rubric=RUBRIC[lang];
+  const techFactors=t.factors.slice(0,5).map((f,i)=>[f,rubric[i]]);
+  const consFactors=t.factors.slice(5,10).map((f,i)=>[f,rubric[i+5]]);
+  const satFactors=t.factors.slice(10,15).map((f,i)=>[f,rubric[i+10]]);
+
+  const gearRows=lang==='en'?[
+    ["0 – 44","Gear 1","Needs Development — Requires supervision and additional training"],
+    ["45 – 55","Gear 2","Working Barber — Capable independently but with some inconsistencies"],
+    ["56 – 75","Gear 3","High Performer — Strong technical ability, high client satisfaction, efficient workflow"],
+  ]:[
+    ["0 – 44","Gear 1","Nangangailangan ng Pag-unlad — Nangangailangan ng supervisiyon at karagdagang pagsasanay"],
+    ["45 – 55","Gear 2","Nagtatrabahong Barbero — Kayang mag-operate nang nagsasarili ngunit may ilang hindi pagkakatulad"],
+    ["56 – 75","Gear 3","Mataas na Performer — Malakas na teknikal na kakayahan, mataas na kasiyahan ng kliyente"],
+  ];
+  const genRows=lang==='en'?[
+    [1,"Poor","Major mistakes, missing steps, or negative client experience"],
+    [2,"Weak","Basic understanding but inconsistent execution"],
+    [3,"Acceptable","Meets minimum professional standard"],
+    [4,"Strong","Confident execution with good consistency"],
+    [5,"Excellent","Professional-level performance with strong technique and efficiency"],
+  ]:[
+    [1,"Mahirap","Malalaking pagkakamali, nawawalang hakbang, o negatibong karanasan ng kliyente"],
+    [2,"Mahina","Pangunahing pag-unawa ngunit hindi pare-parehong pagpapatupad"],
+    [3,"Katanggap-tanggap","Nakakatugon sa pinakamababang propesyonal na pamantayan"],
+    [4,"Malakas","Kumpiyansang pagpapatupad na may magandang pagkakatulad"],
+    [5,"Napakahusay","Antas-propesyonal na pagganap na may malakas na teknik at kahusayan"],
+  ];
+
+  return(
+    <div style={{padding:"28px 0"}}>
+      <div style={{marginBottom:28,padding:"20px",background:"#0e0e0e",border:"1px solid #1a1a1a",borderRadius:2,borderLeft:"3px solid #c8a96e"}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,color:"#c8a96e",marginBottom:6}}>{t.rubricTitle}</div>
+        <div style={{fontSize:13,color:"#9ca3af",lineHeight:1.7}}>{t.rubricSub}</div>
+      </div>
+
+      {/* General Scale */}
+      <div style={{marginBottom:24,border:"1px solid #1a1a1a",borderRadius:2,overflow:"hidden"}}>
+        <div style={{padding:"14px 18px",background:"#0e0e0e",borderLeft:"3px solid #888"}}>
+          <div style={{fontSize:13,fontWeight:600,color:"#f0ece4"}}>{t.genScale}</div>
+        </div>
+        <div style={{padding:"16px 18px"}}>
+          <table className="rubric-table">
+            <thead><tr><th>{t.score}</th><th>{t.label}</th><th>{t.meaning}</th></tr></thead>
+            <tbody>{genRows.map(([sc,lbl,desc])=>(
+              <tr key={sc}><td><ScoreBadge score={sc}/></td><td style={{color:"#c8a96e",whiteSpace:"nowrap",fontSize:11}}>{lbl}</td><td>{desc}</td></tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <RubricSection title={t.techTitle} sub={t.techSub} color="#c8a96e" factorGroups={techFactors} t={t} lang={lang}/>
+      <RubricSection title={t.consTitle} sub={t.consSub} color="#5ab4f0" factorGroups={consFactors} t={t} lang={lang}/>
+      <RubricSection title={t.satTitle} sub={t.satSub} color="#22c55e" factorGroups={satFactors} t={t} lang={lang}/>
+
+      {/* Gear Classification */}
+      <div style={{marginBottom:24,border:"1px solid #1a1a1a",borderRadius:2,overflow:"hidden"}}>
+        <div style={{padding:"14px 18px",background:"#0e0e0e",borderLeft:"3px solid #a855f7"}}>
+          <div style={{fontSize:13,fontWeight:600,color:"#a855f7"}}>{t.gearClassTitle}</div>
+        </div>
+        <div style={{padding:"16px 18px"}}>
+          <table className="rubric-table" style={{marginBottom:20}}>
+            <thead><tr><th>{t.gearRange}</th><th>{t.gearName}</th><th>{t.gearMeaning}</th></tr></thead>
+            <tbody>
+              {gearRows.map(([range,gear,meaning])=>{
+                const gc2=GC[gear]||GC["Gear 1"];
+                return(<tr key={gear}><td style={{fontFamily:"monospace",color:"#f0ece4",fontSize:12}}>{range}</td><td><span style={{padding:"2px 8px",borderRadius:2,background:gc2.bg,border:`1px solid ${gc2.border}`,color:gc2.text,fontSize:11,fontWeight:700}}>{gear}</span></td><td>{meaning}</td></tr>);
+              })}
+            </tbody>
+          </table>
+
+          {[{title:t.gear1path,body:t.gear1body,color:"#c97c2a"},{title:t.gear2path,body:t.gear2body,color:"#2a7cc9"},{title:t.gear3path,body:t.gear3body,color:"#2ac97c"}].map(({title,body,color})=>(
+            <div key={title} style={{marginBottom:16,padding:"16px",background:"#0d0d0d",border:`1px solid ${color}22`,borderLeft:`3px solid ${color}`,borderRadius:2}}>
+              <div style={{fontSize:12,fontWeight:600,color,marginBottom:10,letterSpacing:0.5}}>{title}</div>
+              {body.split("\n\n").map((para,i)=>(
+                <p key={i} style={{fontSize:12,color:"#9ca3af",lineHeight:1.8,marginBottom:i<body.split("\n\n").length-1?10:0}}>{para.split("\n").map((line,j,arr)=><span key={j}>{line}{j<arr.length-1&&<br/>}</span>)}</p>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How to Use + Use Cases */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <div style={{padding:"16px",background:"#0e0e0e",border:"1px solid #1a1a1a",borderRadius:2}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#c8a96e",marginBottom:10}}>{t.howTitle}</div>
+          {t.howBody.split("\n").map((line,i)=><p key={i} style={{fontSize:12,color:"#9ca3af",lineHeight:1.8,margin:0}}>{line}</p>)}
+        </div>
+        <div style={{padding:"16px",background:"#0e0e0e",border:"1px solid #1a1a1a",borderRadius:2}}>
+          <div style={{fontSize:12,fontWeight:600,color:"#c8a96e",marginBottom:10}}>{t.useCasesTitle}</div>
+          {t.useCases.split(" · ").map((uc,i)=><div key={i} style={{fontSize:12,color:"#9ca3af",lineHeight:1.8,padding:"4px 0",borderBottom:"1px solid #111"}}>▸ {uc}</div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [lang,setLang]=useState("en");
+  const [tab,setTab]=useState("report");
+  const [branch,setBranch]=useState("All");
+  const [status,setStatus]=useState("All");
+  const [sortBy,setSortBy]=useState("score");
+  const [search,setSearch]=useState("");
+  const t=T[lang];
+  const statuses=lang==='tl'?STATUSES_TL:STATUSES_EN;
+
+  const activeStatuses=STATUSES_EN;
+  const filtered=barbers
+    .filter(b=>branch==="All"||b.branch===branch)
+    .filter(b=>status==="All"||(lang==='tl'?STATUSES_TL[STATUSES_EN.indexOf(status)]:status)===status||b.status===activeStatuses[statuses.indexOf(status)])
+    .filter(b=>status==="All"||b.status===(lang==='tl'?STATUSES_EN[STATUSES_TL.indexOf(status)]:status)||b.status===status)
+    .filter(b=>b.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a,b2)=>{
+      if(sortBy==="score")return(b2.a2Score||b2.a1Score||0)-(a.a2Score||a.a1Score||0);
+      if(sortBy==="name")return a.name.localeCompare(b2.name);
+      if(sortBy==="improvement")return(b2.improvement||0)-(a.improvement||0);
+      return 0;
+    });
+
+  const gear2c=barbers.filter(b=>(b.a2Gear||b.a1Gear)==="Gear 2").length;
+  const gear3c=barbers.filter(b=>(b.a2Gear||b.a1Gear)==="Gear 3").length;
+  const gear1c=barbers.filter(b=>(b.a2Gear||b.a1Gear)==="Gear 1").length;
+  const standouts=barbers.filter(b=>b.status==="Standout").length;
+  const onWatch=barbers.filter(b=>b.status==="On Watch").length;
+  const scored=barbers.filter(b=>(b.a2Score||b.a1Score)>0);
+  const avgScore=(scored.reduce((s,b)=>s+(b.a2Score||b.a1Score||0),0)/scored.length).toFixed(1);
+
+  const btn=(active)=>({padding:"5px 12px",fontSize:11,letterSpacing:1,background:active?"#c8a96e":"transparent",color:active?"#0a0a0a":"#666",border:`1px solid ${active?"#c8a96e":"#2a2a2a"}`,borderRadius:2,cursor:"pointer"});
+
+  return(
+    <div style={{minHeight:"100vh",background:"#0a0a0a",color:"#f0ece4",padding:"32px 28px"}}>
+      {/* Top bar: brand + language toggle */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+        <div style={{fontSize:10,letterSpacing:3,color:"#c8a96e",textTransform:"uppercase"}}>{t.brand}</div>
+        <div className="lang-toggle">
+          <button className={`lang-btn${lang==="en"?" active":""}`} onClick={()=>{setLang("en");setStatus("All")}}>🇺🇸 EN</button>
+          <button className={`lang-btn${lang==="tl"?" active":""}`} onClick={()=>{setLang("tl");setStatus("Lahat")}}>🇵🇭 TL</button>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div style={{marginBottom:28,borderBottom:"1px solid #1a1a1a",paddingBottom:24}}>
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
+          <div>
+            <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:600,color:"#f0ece4",letterSpacing:0.5}}>{t.title}</h1>
+            <p style={{fontSize:12,color:"#555",marginTop:6}}>{t.subtitle}</p>
+          </div>
+          <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
+            {[{l:t.total,v:barbers.length,c:"#f0ece4"},{l:t.avgScore,v:avgScore,c:"#c8a96e"},{l:t.gear2p,v:gear2c,c:"#5ab4f0"},{l:t.gear3,v:gear3c,c:"#55f0b4"},{l:t.standout,v:standouts,c:"#22c55e"},{l:t.onWatch,v:onWatch,c:"#eab308"}].map(({l,v,c})=>(
+              <div key={l} style={{textAlign:"center"}}>
+                <div style={{fontFamily:"monospace",fontSize:20,color:c,fontWeight:700}}>{v}</div>
+                <div style={{fontSize:9,color:"#444",letterSpacing:1,textTransform:"uppercase",marginTop:2}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Gear bar */}
+        <div style={{marginTop:16,display:"flex",gap:3,height:6,borderRadius:3,overflow:"hidden"}}>
+          <div style={{flex:gear1c,background:"#c97c2a",opacity:0.7}} title={`Gear 1: ${gear1c}`}/>
+          <div style={{flex:gear2c,background:"#2a7cc9",opacity:0.9}} title={`Gear 2: ${gear2c}`}/>
+          <div style={{flex:Math.max(gear3c,0.01),background:"#2ac97c"}} title={`Gear 3: ${gear3c}`}/>
+        </div>
+        <div style={{display:"flex",gap:16,marginTop:6,flexWrap:"wrap"}}>
+          <span style={{fontSize:10,color:"#c97c2a"}}>● Gear 1: {gear1c}</span>
+          <span style={{fontSize:10,color:"#2a7cc9"}}>● Gear 2: {gear2c}</span>
+          <span style={{fontSize:10,color:"#2ac97c"}}>● Gear 3: {gear3c}</span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:"flex",gap:4,marginBottom:0,borderBottom:"1px solid #333"}}>
+        <button className={`tab-btn${tab==="report"?" active":""}`} onClick={()=>setTab("report")}>{t.tabReport}</button>
+        <button className={`tab-btn${tab==="rubric"?" active":""}`} onClick={()=>setTab("rubric")}>{t.tabRubric}</button>
+      </div>
+
+      {/* REPORT TAB */}
+      <div className={`tab-content${tab==="report"?" active":""}`} style={{paddingTop:24}}>
+        {/* Filters */}
+        <div style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap",alignItems:"center"}}>
+          <input placeholder={t.search} value={search} onChange={e=>setSearch(e.target.value)}
+            style={{background:"#111",border:"1px solid #222",color:"#f0ece4",padding:"5px 12px",borderRadius:2,fontSize:12,outline:"none",width:160}}/>
+          <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+            {BRANCHES.map(b=><button key={b} style={btn(branch===b)} onClick={()=>setBranch(b)}>{b}</button>)}
+          </div>
+          <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+            {statuses.map(s=><button key={s} style={btn(status===s)} onClick={()=>setStatus(s)}>{s}</button>)}
+          </div>
+          <div style={{marginLeft:"auto",display:"flex",gap:3,alignItems:"center"}}>
+            <span style={{fontSize:10,color:"#444",letterSpacing:1}}>{t.sortLabel}</span>
+            {[[t.sortScore,"score"],[t.sortName,"name"],[t.sortImp,"improvement"]].map(([l,v])=>(
+              <button key={v} style={btn(sortBy===v)} onClick={()=>setSortBy(v)}>{l}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div style={{display:"flex",gap:14,marginBottom:16,padding:"9px 14px",background:"#0e0e0e",border:"1px solid #1a1a1a",borderRadius:2,flexWrap:"wrap"}}>
+          <span style={{fontSize:10,color:"#555"}}>{t.barsNote}</span>
+        </div>
+
+        <div style={{fontSize:11,color:"#444",marginBottom:12}}>{t.showing} {filtered.length} {t.of} {barbers.length} {t.barbers}</div>
+        {filtered.map(b=><BarberCard key={b.name+b.branch} b={b} t={t} lang={lang}/>)}
+      </div>
+
+      {/* RUBRIC TAB */}
+      <div className={`tab-content${tab==="rubric"?" active":""}`}>
+        <RubricTab t={t} lang={lang}/>
+      </div>
+
+      <div style={{marginTop:36,borderTop:"1px solid #1a1a1a",paddingTop:16,fontSize:10,color:"#2a2a2a",letterSpacing:0.5,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+        <span>Felipe & Sons · Barber Assessment System</span>
+        <span>{t.gearFooter}</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
